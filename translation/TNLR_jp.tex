@@ -61,15 +61,15 @@
 加えて、要件を人手で変換するには労力と専門知識が必要となる。
 
 本論文では、自然言語の要件をJava Modeling Language（JML）\cite{1}の形式的な要件に自動的に変換するために、自然言語処理（NLP: Natural Language Processing）を適用するという課題に取り組む。
-具体的には、次の２つの異なるNLPアプローチを検討する。\\
+具体的には、次の2つの異なるNLPアプローチを検討する。\\
 1）ChatGPTを介してGPT\cite{2}を使用し、JMLに変換する方法。\\
 2）著者らが設計したシンボリックアプローチで、ccg2lambda\cite{3}を使用して自然言語の要件から生成された高階論理意味表現を、コンパイラがJMLの形式的要件に変換する方法。\\
-これらの２つの変換は、OpenJML\cite{4}とz3\cite{5}を使用して評価され、生成されたJMLの構文と意味の正確性、および生成されたJMLを使用したプログラムの正確性の両方が確認される。
+これらの2つの変換は、OpenJML\cite{4}とz3\cite{5}を使用して評価され、生成されたJMLの構文と意味の正確性、および生成されたJMLを使用したプログラムの正確性の両方が確認される。
 本論文の全体的な目標は、自然言語の要件を演繹的検証に必要な形式要件に変換することで、ソフトウェア開発における時間とコストを大幅に節約する手段として、既存のNLP技術を研究することである。
 
 本論文は以下のように構成される。
 第\ref{sec:background}章では、本研究に関連する概念を簡単に紹介する。
-第\ref{sec:approaches}章では、２つのアプローチについて説明する。
+第\ref{sec:approaches}章では、2つのアプローチについて説明する。
 第\ref{sec:evaluation}章では、これらのアプローチのケーススタディを示す。
 第\ref{sec:related_work}章では、関連する概念や文献を調査する。
 第\ref{sec:conclusion}章では、結論を示す。
@@ -88,20 +88,30 @@ JMLではOpenJML\cite{4}やESC/Java\cite{6}など、演繹的検証を補助す�
 
 \subsection{自然言語処理}
 自然言語処理（NLP）は、人間の言語を理解し解釈することができる計算モデルを開発することを目的とする研究分野である。
-NLP は、言語の処理方法に基づいて、シンボリックアプローチと深層学習アプローチの２つのアプローチに大別できる。
+NLP は、言語の処理方法に基づいて、シンボリックアプローチと深層学習アプローチの2つのアプローチに大別できる。
 シンボリックNLPは、単純な正規表現から複雑な文法までの明示的な表現と、言語の構文と意味を解釈するためのアルゴリズムを使用する\cite{3}。
 一方、深層学習NLPは、深層ニューラルネットワークを使用して、大量のデータから言語のパターンや構造を学習する\cite{2}。
 
+% =================  3. アプローチ  ====================
 \section{アプローチ}
 \label{sec:approaches}
 JMLの形式的な要件を生成するため、シンボリックアプローチは著者らが設計したコンパイラに基づいており、深層学習アプローチはGPTに基づいている。
 
 \subsection{シンボリックアプローチ}
-コードコメントの入力テキスト要件に基づいて生成された意味表現を受け取り、図１に示すアプローチに従うコンパイラを構築した。
+コードコメントの入力テキスト要件に基づいて生成された意味表現を受け取り、図\ref{fig:Symb_app}に示すアプローチに従うコンパイラを構築した。
 テキストに対し、NLPツールによって誤分類される可能性のある単語を置換するため、拡張可能なルールで前処理を行う。
-たとえば、Javaのリテラルを表すキーワード（例: true, false, null）は、‘a [keyword] value'（例: a true value）と置換する。
+たとえば、Javaのリテラルを表すキーワード（例: true, false, null）は、`a [keyword] value'（例: a true value）と置換する。
 品詞タグ付けツールは通常、このような単語に対し形容詞としてタグ付けする。
 しかし、これらの単語は一般的にブール値や、オブジェクト参照の比較で使用するため、名詞としてタグ付けする必要がある。
+
+\begin{figure}[t]
+    \begin{center}
+        \includegraphics[width=\linewidth]{../image/TNLR/Fig1_Symb_app.png}
+        \caption{テキスト要件の自動形式化に対する記号的アプローチ。
+            高階論理意味表現は CCG 導出を通じて構築され、コンパイラはそれを JML に変換する。}
+        \label{fig:Symb_app}
+    \end{center}
+\end{figure}
 
 前処理された各文は、ccg2lambda\cite{3}を使用した変換プロセスを経る。
 このプロセスには、トークン化、組み合わせカテゴリカル文法（CCG）木の導出、および意味構成が含まれる。
@@ -124,9 +134,9 @@ Meaning Representation Compiler（MEARC）と名付けたコンパイラを設�
 最後に、木を後順で走査することにより、目的のJML を生成する。
 
 \subsection{GPTアプローチ}
-GPTモデル\cite{2}の学習は２段階に分けることができる。
+GPTモデル\cite{2}の学習は2段階に分けることができる。
 第１段階は、明示的なラベル付けのない大規模なテキストコーパスでの教師なし事前学習プロセスである。
-第２段階は、ラベル付けされたデータセットで学習を行い、特定のNLPタスクに適応させる教師ありファインチューニングプロセスである。
+第2段階は、ラベル付けされたデータセットで学習を行い、特定のNLPタスクに適応させる教師ありファインチューニングプロセスである。
 GPTモデルを変換に利用するために、ChatGPTを使用してクエリをモデルに入力する。
 各クエリに対して、要件のJMLへの変換を明示的に要求し、モデルは追加の説明と共にJMLを提供する。
 
@@ -139,34 +149,83 @@ GPT の場合、クエリとして“Please convert this sentence to JML: [requi
 また、対応するJavaプログラムに関して静的に正確性を検証するため、OpenJMLとz3\cite{5}定理証明器を使用する。
 以下の結果では、JML 仕様に対し、構文と意味のチェック、および z3 定理証明器による検証チェックを満たす場合にのみ正しいと見なす。
 
-自然言語要件に関する両方のアプローチの結果を表\ref{}に示す。
-シンボリックアプローチは、10 回の翻訳のうち 7 回で正しい JML を生成した。
-３行目と５行目では意味表現が誤って生成されたため、コンパイラからJMLが生成されなかった。
-このような場合での意味表現導出を改善するためには、言語解釈のさらなる開発が必要である。
-２行目については、生成された JML は ２つの配列の内容を比較しているが、Java の deep equals メソッドはネストされた配列の比較を実装するため、定理証明器によって拒否された。
+\begin{table*}[t]
+    \caption{シンボリック NLP と GPT を使用して自然言語要件を JML に変換した結果}
+    \label{tab:result_1}
+    \centering
+    \fontsize{6}{5}\selectfont
+    \begin{tabular}{p{25mm}|p{45mm}|p{7mm}|p{45mm}|p{7mm}}
+        \hline
+        自然言語要件                                                                                       & シンボリックNLPで生成したJLM                                                                                                                                                                                    & 正誤                                                                  & GPTで生成したJLM                                                                                                                       & 正誤  \\
+        \hline\hline
+        1. The array should not be null.                                                                   & requires (array != null);                                                                                                                                                                                       & 正                                                                    & requires array != null;                                                                                                                & 正    \\ \hline
+        2. If parameter x deeply equals parameter y, then result is true.
 
-GPTの結果に関しては、10件の変換のうち４件が完全に正しく、他にもいくつかはほぼ正解に近い結果だった。
-２,４,５,６,７行目では、仕様で使用されているメソッドが存在しないか、その呼び出しが許可されていないため、変換が間違っている。
+                                                                                                           & ensures(((((x == null \&\& y == null) \&\& ((x ==
+        y) \textbar\textbar (x.equals(y)) \textbar\textbar Arrays.equals(x, y))) \textbar\textbar ((x
+        != null \&\& y != null \&\& x.length == y.length)
+        \&\& (\textbackslash forall int i; 0 \textless= i \textless x.length; ((x[i]
+        == null \&\& y[i] == null) \textbar\textbar (x[i] != null \&\&
+        y[i] != null \&\& (!x[i].getClass().isArray()
+        \&\& !y[i].getClass().isArray() \&\&
+        x[i].equals(y[i])))))))) ==\textgreater (\textbackslash result==true));
+                                                                                                           & 誤                                                                                                                                                                                                              & requires x.deepEquals(y); \par ensures \textbackslash result == true; & 誤                                                                                                                                             \\ \hline
+        3. If and only if parameter x deeply equals parameter y, then result is true.                      & -                                                                                                                                                                                                               & 誤
+                                                                                                           & requires x.deepEquals(y) \textless==\textgreater \textbackslash result == true;                                                                                                                                 & 誤                                                                                                                                                                                                                     \\ \hline
+        4. If the input n is a prime number, the \par result is true.
+                                                                                                           & ensures((n == 2 \textbar\textbar (n \textgreater 2 \&\& (\textbackslash forall int k; n \textgreater 2 \&\& 2 \textless= k \&\& k \textless= n/2; n \% k != 0))) ==\textgreater (\textbackslash result==true));
+                                                                                                           & 正                                                                                                                                                                                                              & requires isPrime(n); \par ensures \textbackslash result == true;      & 誤                                                                                                                                             \\ \hline
+        5. If and only if the input n is prime, the result is true                                         & -                                                                                                                                                                                                               & 誤                                                                    & requires isPrime(n) \textless==\textgreater \textbackslash result == true;                                                             & 誤    \\ \hline
+        6. If the result is true, the input number is even                                                 & ensures((\textbackslash result==true) ==\textgreater (number \% 2 == 0));                                                                                                                                       & 正                                                                    & requires isEven(n) ==\textgreater \textbackslash result == true;                                                                       & 誤    \\ \hline
+        7. If the result is false, the input number is not even                                            & ensures((\textbackslash result==false) ==\textgreater (!(number \% 2 == 0)));                                                                                                                                   & 正                                                                    & requires !isEven(n) ==\textgreater \textbackslash result == false;                                                                     & 誤    \\ \hline
+        8. The input arr should be sorted in descending order                                              & ensures (\textbackslash forall int i; 0 \textless= i \&\& i \textless arr.length - 1; arr[i] \textgreater= arr[i + 1]);                                                                                         & 正                                                                    & requires (\textbackslash forall int i, j; 0 \textless= i \&\& i \textless j \&\& j \textless arr.length; arr[i] \textgreater= arr[j]); & 正(?) \\ \hline
+        9. The result is less than or equal to 2000 and the result is greater than or equal to 0.          & ensures((\textbackslash result \textgreater= 0) \&\& (\textbackslash result \textless= 2000));                                                                                                                  & 正                                                                    & ensures \textbackslash result \textgreater= 0 \&\& \textbackslash result \textless= 2000;                                              & 正    \\ \hline
+        10. The input num1 is less than or equal to 1000 and the input num2 is less than or equal to 1000. & requires((num2 \textless= 1000) \&\& (num1 \textless= 1000));                                                                                                                                                   & 正                                                                    & requires num1 \textless= 1000 \&\& num2 \textless= 1000;                                                                               & 正    \\ \hline
+    \end{tabular}
+\end{table*}
+
+自然言語要件に関する両方のアプローチの結果を表\ref{tab:result_1}に示す。
+シンボリックアプローチは、10 回の翻訳のうち 7 回で正しい JML を生成した。
+3行目と5行目では意味表現が誤って生成されたため、コンパイラからJMLが生成されなかった。
+このような場合での意味表現導出を改善するためには、言語解釈のさらなる開発が必要である。
+2行目については、生成された JML は 2つの配列の内容を比較しているが、Java の deep equals メソッドはネストされた配列の比較を実装するため、定理証明器によって拒否された。
+
+GPTの結果に関しては、10件の変換のうち4件が完全に正しく、他にもいくつかはほぼ正解に近い結果だった。
+2,4,5,6,7行目では、仕様で使用されているメソッドが存在しないか、その呼び出しが許可されていないため、変換が間違っている。
 これは、GPT にコンテキスト情報が欠落しているために発生し、JML 仕様でセマンティック エラーが発生すると考えられる。
-さらに、２行目の deepEquals メソッドの使用は構文的に誤っている (deepEquals メソッドは２つの引数を取る)。
-３,５,６,７行目では、事前条件で結果を参照しているため、構文エラーが発生している（ ‘\textbackslash result'は‘requires'句では許可されていない）。
+さらに、2行目の deepEquals メソッドの使用は構文的に誤っている (deepEquals メソッドは2つの引数を取る)。
+3,5,6,7行目では、事前条件で結果を参照しているため、構文エラーが発生している（ `\textbackslash result'は`requires'句では許可されていない）。
 全体として、以上の調査結果は、GPT ではJava API 仕様などの必要な知識を取得するために、特定の学習コーパスが必要であることを示している。
 
-GPTの８行目の結果は議論の余地がある。
+GPTの8行目の結果は議論の余地がある。
 条件本体は正しく変換されている （つまり、降順でソートされていることを表す \textbackslash forall 句）。
-しかし、変換されたJMLは事前条件であると見なしているが、おそらく事後条件であるべきである（メソッドが ‘result' を参照していないため）。
+しかし、変換されたJMLは事前条件であると見なしているが、おそらく事後条件であるべきである（メソッドが `result' を参照していないため）。
 文脈を考慮しない場合、この要件はソートメソッドの事後条件またはバイナリ検索実装の事前条件である可能性がある。
 この文脈情報の重要性は、プログラムから文脈情報を提供することで、深層学習アプローチを改善する研究の可能性を提示している
 （たとえば、純粋なメソッドの void 戻り値の型は、引数を変更することを示唆している）。
 
+\begin{table*}[t]
+    \caption{CHATGPT のクエリを変更した結果。元のクエリは“Please convert this sentence to JML: [requirement]”である。クエリに“without calling a separate function”を追加する変更を加えた。}
+    \label{tab:result_2}
+    \centering
+    \fontsize{6}{5}\selectfont
+    \begin{tabular}{p{25mm}|p{48mm}|p{48mm}|p{7mm}}
+        \hline
+        自然言語要件                                                   & 元のクエリから生成したJML                                             & 変更後のクエリから生成したJML                                                                                                                                                                                                                                    & 正誤 \\
+        \hline\hline
+        If parameter x deeply equals parameter y, then result is true. & requires x.deepEquals(y); \par ensures \textbackslash result == true; & ensures (\textbackslash result == true \&\& x.deepEquals(y)) \textbar\textbar (\textbackslash result == false \&\& !x.deepEquals(y));                                                                                                                            & 誤   \\ \hline
+        If the input n is a prime number, the result is true.          & requires isPrime(n); \par ensures \textbackslash result == true;      & ensures (\textbackslash result == true \&\& (\textbackslash forall int i; 2 \textless= i \&\& i \textless n; n \% i != 0)) \textbar\textbar (\textbackslash result == false \&\& (\textbackslash exists int i; 2 \textless= i \&\& i \textless n; n \% i == 0)); & 正   \\ \hline
+    \end{tabular}
+\end{table*}
+
 仕様における誤ったメソッド呼び出しの問題をさらに調査するために、要件番号 2 と 4 の ChatGPT クエリを変更し、“without calling a separate function”（別の関数を呼び出さずに）というフレーズを追加した。
-表\ref{}に示す結果は、どちらの場合も生成された JML が‘requires'を‘ensures'に正しく置き換えていることを示している。
+表\ref{tab:result_2}に示す結果は、どちらの場合も生成された JML が`requires'を`ensures'に正しく置き換えていることを示している。
 しかし、この置き換えはクエリを変更した際の目的ではなかった。
 これにより、GPT によって提供される結果に非決定性があることが露呈した (これは既知の特性である)。
-さらに、GPT は２つのクエリ間で一貫性のない方法でメソッド呼び出しを削除している。
-メソッドの動作は‘prime'に対して正しく指定されているが、‘deepEquals'の使用は表\ref{}の最初の行に残っている。
+さらに、GPT は2つのクエリ間で一貫性のない方法でメソッド呼び出しを削除している。
+メソッドの動作は`prime'に対して正しく指定されているが、`deepEquals'の使用は表\ref{tab:result_2}の最初の行に残っている。
 
-最後に、２つのアプローチを比較すると、GPT は自然言語文の意味をより正確に解釈できることが分かる。
+最後に、2つのアプローチを比較すると、GPT は自然言語文の意味をより正確に解釈できることが分かる。
 しかし、Java API や言語の特性を完全には処理できない。
 Java API のコーパスを具体的に使用してさらに学習することで、この点で GPT が改善される可能性がある。
 また、結果はプログラムの文脈情報やソフトウェアエンジニアリングの慣用句が変換プロセスにおいて重要な役割を果たしていることを示している。
@@ -177,11 +236,11 @@ Java API のコーパスを具体的に使用してさらに学習すること�
 本論文では、自然言語の要件を自動的に形式化することに焦点を当てている。
 既存のいくつかの手法では、構造化モデル\cite{8},\cite{9}と内部の事前定義ルール\cite{10}、モデルとヒューリスティックに基づく手法\cite{11},\cite{12}、分析とヒューリスティックに基づく手法\cite{13},\cite{14}、ロジックとそのパーサーの再定義\cite{15}を使用し、
 制限された自然言語セットを用いることで要件の自動形式化を実現している。
-一方、本論文で使われている２つのアプローチは、自然言語入力に意図的な制限を課していない。
+一方、本論文で使われている2つのアプローチは、自然言語入力に意図的な制限を課していない。
 
 本論文で提示しているシンボリックアプローチは、ARSENAL\cite{16}に関連している。
 ARSENAL は線形時相論理を生成するように設計されているが、ここで提示しているシンボリックアプローチは高階論理を処理できる。
-結果として、線形時相論理は数量化をサポートしていないため、２つのアプローチの入力の複雑さは大きく異なる。
+結果として、線形時相論理は数量化をサポートしていないため、2つのアプローチの入力の複雑さは大きく異なる。
 さらに、シンボリックアプローチで生成されるJML仕様は、定理証明を使用して検証を行うことができる。
 
 FRET\cite{17}は、構造化された自然言語要件を形式化するアプローチであり、産業応用で有望な結果を示している。
@@ -192,15 +251,34 @@ FRET\cite{17}は、構造化された自然言語要件を形式化するアプ�
 \label{sec:conclusion}
 自然言語を使用してソフトウェアを分析することは、V\&V 技術を適用する組織にとって、時間とコストに関連する重要な課題である。
 この課題に対処するための可能な解決策は、自然言語要件を正式な要件に変換し、演繹的検証を使用して変換された要件を評価することである。
-本論文では、自然言語の要件を自動的に形式化する２つの異なる方法の実現可能性を評価した。
+本論文では、自然言語の要件を自動的に形式化する2つの異なる方法の実現可能性を評価した。
 最初の方法は、ccg2lambda\cite{3}を利用して自然言語から得られた意味表現を形式要件に変換するシンボリックアプローチを採用している。
-２つ目の方法は、GPT\cite{2}にクエリを送信することである。
+2つ目の方法は、GPT\cite{2}にクエリを送信することである。
 どちらの方法も、目標言語として JML 仕様を生成できる。
 
-一連の要件に対して２つのアプローチを評価し、シンボリックアプローチと GPT の両方が有意義で有望な結果をもたらすと結論付ける。
-言語理解の点では、GPT は常にテキスト要件の意味を解釈するため、シンボリックアプローチよりも優れている。
+一連の要件に対して2つのアプローチを評価し、シンボリックアプローチと GPT の両方が有意義で有望な結果をもたらすと結論付ける。
+言語理解の点では、GPTは常にテキスト要件の意味を解釈するため、シンボリックアプローチよりも優れている。
 ただし、シンボリックアプローチは、テキスト入力を解釈して意味表現を構築できる場合、JML を生成する際により正確である。
 したがって、両方のアプローチは、自然言語要件の形式化を自動化し、形式手法を適用する労力を軽減する上で重要な貢献をすることができる。
 
+\begin{thebibliography}{99}
+    \bibitem{1} G. T. Leavens, A. L. Baker, and C. Ruby, “Preliminary design of jml: A behavioral interface specification language for java,” SIGSOFT Softw. Eng. Notes, vol. 31, no. 3, p. 1-38, May 2006.
+    \bibitem{2} A. Radford and K. Narasimhan, “Improving language understanding by generative pre-training,” 2018.
+    \bibitem{3} P. Mart\'{i}nez-G\'{o}mez, K. Mineshima, Y. Miyao, and D. Bekki, “ccg2lambda: A compositional semantics system,” in Proceedings of ACL 2016 System Demonstrations. Berlin, Germany: Association for Computational Linguistics, August 2016, pp. 85-90.
+    \bibitem{4} D. R. Cok, “OpenJML: JML for Java 7 by extending OpenJDK,” in NASA Formal Methods. Berlin, Heidelberg: Springer Berlin Heidelberg, 2011, pp. 472-479.
+    \bibitem{5} L. de Moura and N. Bjørner, “Z3: An efficient smt solver,” in Tools and Algorithms for the Construction and Analysis of Systems, C. R. Ramakrishnan and J. Rehof, Eds. Berlin, Heidelberg: Springer Berlin Heidelberg, 2008, pp. 337-340.
+    \bibitem{6} D. R. Cok and J. R. Kiniry, “Esc/java2: Uniting esc/java and jml,” in International Workshop on Construction and Analysis of Safe, Secure, and Interoperable Smart Devices. Springer, 2004, pp. 108-128.
+    \bibitem{7} S. Bird, E. Klein, and E. Loper, Natural Language Processing with Python, 1st ed. O'Reilly Media, Inc., 2009.
+    \bibitem{8} I. S. Bajwa, B. Bordbar, and M. G. Lee, “Ocl constraints generation from natural language specification,” in 2010 14th IEEE International Enterprise Distributed Object Computing Conf., 2010, pp. 204-213.
+    \bibitem{9} C. Wang, F. Pastore, and L. Briand, “Automated generation of constraints from use case specifications to support system testing,” in 2018 IEEE 11th International Conference on Software Testing, Verification and Validation (ICST), 2018, pp. 23-33.
+    \bibitem{10} A. Blasi, A. Goffi, K. Kuznetsov, A. Gorla, M. D. Ernst, M. Pezz\`{e}, and S. D. Castellanos, “Translating code comments to procedure specifications,” in Proceedings of the 27th ACM SIGSOFT International Symposium on Software Testing and Analysis, ser. ISSTA 2018. New York, NY, USA: Association for Computing Machinery, 2018, p. 242-253.
+    \bibitem{11} Y. Zhou, R. Gu, T. Chen, Z. Huang, S. Panichella, and H. Gall, “Analyzing apis documentation and code to detect directive defects,” in 2017 IEEE/ACM 39th International Conference on Software Engineering (ICSE), 2017, pp. 27-37.
+    \bibitem{12} J. Zhai, Y. Shi, M. Pan, G. Zhou, Y. Liu, C. Fang, S. Ma, L. Tan, and X. Zhang, C2S: Translating Natural Language Comments to Formal Program Specifications. New York, NY, USA: Association for Computing Machinery, 2020, p. 25-37.
+    \bibitem{13} L. Tan, D. Yuan, G. Krishna, and Y. Zhou, “/*icomment: Bugs or bad comments?*/,” in Proceedings of Twenty-First ACM SIGOPS Symposium on Operating Systems Principles, ser. SOSP '07. New York, NY, USA: Association for Computing Machinery, 2007, p. 145-158.
+    \bibitem{14} L. Tan, Y. Zhou, and Y. Padioleau, “Acomment: Mining annotations from comments and code to detect interrupt related concurrency bugs,” in Proceedings of the 33rd International Conference on Software Engineering, ser. ICSE '11. New York, NY, USA: Association for Computing Machinery, 2011, p. 11-20.
+    \bibitem{15} C. Menghi, S. Nejati, K. Gaaloul, and L. C. Briand, “Generating automated and online test oracles for simulink models with continuous and uncertain behaviors,” in Proceedings of the 2019 27th ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering, ser. ESEC/FSE 2019. New York, NY, USA: Association for Computing Machinery, 2019, p. 27-38.
+    \bibitem{16} S. Ghosh, D. Elenius, W. Li, P. Lincoln, N. Shankar, and W. Steiner, “Automatically extracting requirements specifications from natural language,” CoRR, vol. abs/1403.3142, 2014.
+    \bibitem{17} M. Farrell, M. Luckcuck, O. Sheridan, and R. Monahan, “Fretting about requirements: Formalised requirements for an aircraft engine controller,” in Requirements Engineering: Foundation for Software Quality, V. Gervasi and A. Vogelsang, Eds. Cham: Springer International Publishing, 2022, pp. 96-111.
+\end{thebibliography}
 
 \end{document}
