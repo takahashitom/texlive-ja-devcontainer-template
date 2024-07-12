@@ -1,10 +1,14 @@
-\documentclass[uplatex, twocolumn,10pt]{jsarticle} % Underfull \vbox (badness 10000)　文書の見た目が悪いらしいが、解決方法がよく分からない
+\documentclass[uplatex, twocolumn, 10pt]{jsarticle} % Underfull \vbox (badness 10000)　文書の見た目が悪いらしいが、解決方法がよく分からない
 
 \usepackage[dvipdfmx]{graphicx} % 画像処理に関するやつ
 \usepackage{latexsym} % 数学の記述や論文作成などで頻繁に使用されるらしいやつ
 \usepackage{bmpsize} % フォントのサイズ
 \usepackage{url} % urlを扱うときに必要
 \usepackage{comment} % 複数行のコメントができるらしいけど、#でいい気がする
+% 余白の調整
+% \usepackage[top=25truemm,bottom=25truemm,left=20truemm,right=20truemm]{geometry}
+\setlength{\textheight}{636pt}
+\setlength{\textwidth}{453pt}
 
 % 使い方の例：\Underline{これが下線で強調されるテキストです。}\endUnderline
 \def\Underline{\setbox0\hbox\bgroup\let\\\endUnderline} 
@@ -156,33 +160,23 @@ GPT の場合、クエリとして``Please convert this sentence to JML: [requir
     \label{tab:result_1}
     \centering
     \fontsize{6}{5}\selectfont
-    \begin{tabular}{p{25mm}|p{45mm}|p{7mm}|p{45mm}|p{7mm}}
+    \begin{tabular}{p{30mm}|p{45mm}|p{7mm}|p{45mm}|p{7mm}}
         \hline
-        自然言語要件                                                                                       & シンボリックNLPで生成したJLM                                                                                                                                                                                    & 正誤                                                                  & GPTで生成したJLM                                                                                                                       & 正誤  \\
+        自然言語要件                                                                                       & シンボリックNLPで生成したJLM                                                                                                                                                                                                                                                                                                                                                                                                                                                                             & 正誤                                                             & GPTで生成したJLM                                                                                                                       & 正誤  \\
         \hline\hline
-        1. The array should not be null.                                                                   & requires (array != null);                                                                                                                                                                                       & 正                                                                    & requires array != null;                                                                                                                & 正    \\ \hline
-        2. If parameter x deeply equals parameter y, then result is true.
-
-                                                                                                           & ensures(((((x == null \&\& y == null) \&\& ((x ==
-        y) \textbar\textbar (x.equals(y)) \textbar\textbar Arrays.equals(x, y))) \textbar\textbar ((x
-        != null \&\& y != null \&\& x.length == y.length)
-        \&\& (\textbackslash forall int i; 0 \textless= i \textless x.length; ((x[i]
-        == null \&\& y[i] == null) \textbar\textbar (x[i] != null \&\&
-        y[i] != null \&\& (!x[i].getClass().isArray()
-        \&\& !y[i].getClass().isArray() \&\&
-        x[i].equals(y[i])))))))) ==\textgreater (\textbackslash result==true));
-                                                                                                           & 誤                                                                                                                                                                                                              & requires x.deepEquals(y); \par ensures \textbackslash result == true; & 誤                                                                                                                                             \\ \hline
-        3. If and only if parameter x deeply equals parameter y, then result is true.                      & -                                                                                                                                                                                                               & 誤
-                                                                                                           & requires x.deepEquals(y) \textless==\textgreater \textbackslash result == true;                                                                                                                                 & 誤                                                                                                                                                                                                                     \\ \hline
+        1. The array should not be null.                                                                   & requires (array != null);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                & 正                                                               & requires array != null;                                                                                                                & 正    \\ \hline
+        2. If parameter x deeply equals parameter y, then result is true.                                  & ensures(((((x == null \&\& y == null) \&\& ((x == y) \textbar\textbar (x.equals(y)) \textbar\textbar Arrays.equals(x, y))) \textbar\textbar ((x != null \&\& y != null \&\& x.length == y.length) \&\& (\textbackslash forall int i; 0 \textless= i \textless x.length; ((x[i] == null \&\& y[i] == null) \textbar\textbar (x[i] != null \&\& y[i] != null \&\& (!x[i].getClass().isArray() \&\& !y[i].getClass().isArray() \&\& x[i].equals(y[i])))))))) ==\textgreater (\textbackslash result==true)); & 誤                                                               & requires x.deepEquals(y); \par ensures \textbackslash result == true;                                                                  & 誤    \\ \hline
+        3. If and only if parameter x deeply equals parameter y, then result is true.                      & -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        & 誤
+                                                                                                           & requires x.deepEquals(y) \textless==\textgreater \textbackslash result == true;                                                                                                                                                                                                                                                                                                                                                                                                                          & 誤                                                                                                                                                                                                                \\ \hline
         4. If the input n is a prime number, the \par result is true.
                                                                                                            & ensures((n == 2 \textbar\textbar (n \textgreater 2 \&\& (\textbackslash forall int k; n \textgreater 2 \&\& 2 \textless= k \&\& k \textless= n/2; n \% k != 0))) ==\textgreater (\textbackslash result==true));
-                                                                                                           & 正                                                                                                                                                                                                              & requires isPrime(n); \par ensures \textbackslash result == true;      & 誤                                                                                                                                             \\ \hline
-        5. If and only if the input n is prime, the result is true                                         & -                                                                                                                                                                                                               & 誤                                                                    & requires isPrime(n) \textless==\textgreater \textbackslash result == true;                                                             & 誤    \\ \hline
-        6. If the result is true, the input number is even                                                 & ensures((\textbackslash result==true) ==\textgreater (number \% 2 == 0));                                                                                                                                       & 正                                                                    & requires isEven(n) ==\textgreater \textbackslash result == true;                                                                       & 誤    \\ \hline
-        7. If the result is false, the input number is not even                                            & ensures((\textbackslash result==false) ==\textgreater (!(number \% 2 == 0)));                                                                                                                                   & 正                                                                    & requires !isEven(n) ==\textgreater \textbackslash result == false;                                                                     & 誤    \\ \hline
-        8. The input arr should be sorted in descending order                                              & ensures (\textbackslash forall int i; 0 \textless= i \&\& i \textless arr.length - 1; arr[i] \textgreater= arr[i + 1]);                                                                                         & 正                                                                    & requires (\textbackslash forall int i, j; 0 \textless= i \&\& i \textless j \&\& j \textless arr.length; arr[i] \textgreater= arr[j]); & 正(?) \\ \hline
-        9. The result is less than or equal to 2000 and the result is greater than or equal to 0.          & ensures((\textbackslash result \textgreater= 0) \&\& (\textbackslash result \textless= 2000));                                                                                                                  & 正                                                                    & ensures \textbackslash result \textgreater= 0 \&\& \textbackslash result \textless= 2000;                                              & 正    \\ \hline
-        10. The input num1 is less than or equal to 1000 and the input num2 is less than or equal to 1000. & requires((num2 \textless= 1000) \&\& (num1 \textless= 1000));                                                                                                                                                   & 正                                                                    & requires num1 \textless= 1000 \&\& num2 \textless= 1000;                                                                               & 正    \\ \hline
+                                                                                                           & 正                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       & requires isPrime(n); \par ensures \textbackslash result == true; & 誤                                                                                                                                             \\ \hline
+        5. If and only if the input n is prime, the result is true                                         & -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        & 誤                                                               & requires isPrime(n) \textless==\textgreater \textbackslash result == true;                                                             & 誤    \\ \hline
+        6. If the result is true, the input number is even                                                 & ensures((\textbackslash result==true) ==\textgreater (number \% 2 == 0));                                                                                                                                                                                                                                                                                                                                                                                                                                & 正                                                               & requires isEven(n) ==\textgreater \textbackslash result == true;                                                                       & 誤    \\ \hline
+        7. If the result is false, the input number is not even                                            & ensures((\textbackslash result==false) ==\textgreater (!(number \% 2 == 0)));                                                                                                                                                                                                                                                                                                                                                                                                                            & 正                                                               & requires !isEven(n) ==\textgreater \textbackslash result == false;                                                                     & 誤    \\ \hline
+        8. The input arr should be sorted in descending order                                              & ensures (\textbackslash forall int i; 0 \textless= i \&\& i \textless arr.length - 1; arr[i] \textgreater= arr[i + 1]);                                                                                                                                                                                                                                                                                                                                                                                  & 正                                                               & requires (\textbackslash forall int i, j; 0 \textless= i \&\& i \textless j \&\& j \textless arr.length; arr[i] \textgreater= arr[j]); & 正(?) \\ \hline
+        9. The result is less than or equal to 2000 and the result is greater than or equal to 0.          & ensures((\textbackslash result \textgreater= 0) \&\& (\textbackslash result \textless= 2000));                                                                                                                                                                                                                                                                                                                                                                                                           & 正                                                               & ensures \textbackslash result \textgreater= 0 \&\& \textbackslash result \textless= 2000;                                              & 正    \\ \hline
+        10. The input num1 is less than or equal to 1000 and the input num2 is less than or equal to 1000. & requires((num2 \textless= 1000) \&\& (num1 \textless= 1000));                                                                                                                                                                                                                                                                                                                                                                                                                                            & 正                                                               & requires num1 \textless= 1000 \&\& num2 \textless= 1000;                                                                               & 正    \\ \hline
     \end{tabular}
 \end{table*}
 
@@ -193,25 +187,18 @@ GPT の場合、クエリとして``Please convert this sentence to JML: [requir
 2行目については、生成された JML は 2つの配列の内容を比較しているが、Java の deep equals メソッドはネストされた配列の比較を実装するため、定理証明器によって拒否された。
 
 GPTの結果に関しては、10件の変換のうち4件が完全に正しく、他にもいくつかはほぼ正解に近い結果だった。
-2,4,5,6,7行目では、仕様で使用されているメソッドが存在しないか、その呼び出しが許可されていないため、変換が間違っている。
+2, 4, 5, 6, 7行目では、仕様で使用されているメソッドが存在しないか、その呼び出しが許可されていないため、変換が間違っている。
 これは、GPT にコンテキスト情報が欠落しているために発生し、JML 仕様でセマンティック エラーが発生すると考えられる。
 さらに、2行目の deepEquals メソッドの使用は構文的に誤っている (deepEquals メソッドは2つの引数を取る)。
-3,5,6,7行目では、事前条件で結果を参照しているため、構文エラーが発生している（ `\textbackslash result'は`requires'句では許可されていない）。
+3, 5, 6, 7行目では、事前条件で結果を参照しているため、構文エラーが発生している（ `\textbackslash result'は`requires'句では許可されていない）。
 全体として、以上の調査結果は、GPT ではJava API 仕様などの必要な知識を取得するために、特定の学習コーパスが必要であることを示している。
-
-GPTの8行目の結果は議論の余地がある。
-条件本体は正しく変換されている （つまり、降順でソートされていることを表す \textbackslash forall 句）。
-しかし、変換されたJMLは事前条件であると見なしているが、おそらく事後条件であるべきである（メソッドが `result' を参照していないため）。
-コンテキストを考慮しない場合、この要件はソートメソッドの事後条件またはバイナリ検索実装の事前条件である可能性がある。
-このコンテキスト情報の重要性は、プログラムからコンテキスト情報を提供することで、深層学習アプローチを改善する研究の可能性を提示している
-（たとえば、純粋なメソッドの void 戻り値の型は、引数を変更することを示唆している）。
 
 \begin{table*}[t]
     \caption{CHATGPT のクエリを変更した結果。元のクエリは``Please convert this sentence to JML: [requirement]"である。クエリに``without calling a separate function"を追加する変更を加えた。}
     \label{tab:result_2}
     \centering
     \fontsize{6}{5}\selectfont
-    \begin{tabular}{p{25mm}|p{48mm}|p{48mm}|p{7mm}}
+    \begin{tabular}{p{25mm}|p{50mm}|p{55mm}|p{7mm}}
         \hline
         自然言語要件                                                   & 元のクエリから生成したJML                                             & 変更後のクエリから生成したJML                                                                                                                                                                                                                                    & 正誤 \\
         \hline\hline
@@ -219,6 +206,13 @@ GPTの8行目の結果は議論の余地がある。
         If the input n is a prime number, the result is true.          & requires isPrime(n); \par ensures \textbackslash result == true;      & ensures (\textbackslash result == true \&\& (\textbackslash forall int i; 2 \textless= i \&\& i \textless n; n \% i != 0)) \textbar\textbar (\textbackslash result == false \&\& (\textbackslash exists int i; 2 \textless= i \&\& i \textless n; n \% i == 0)); & 正   \\ \hline
     \end{tabular}
 \end{table*}
+
+GPTの8行目の結果は議論の余地がある。
+条件本体は正しく変換されている （つまり、降順でソートされていることを表す \textbackslash forall 句であること）。
+しかし、変換されたJMLは事前条件であると見なしているが、おそらく事後条件であるべきである（メソッドが `result' を参照していないため）。
+コンテキストを考慮しない場合、この要件はソートメソッドの事後条件またはバイナリ検索実装の事前条件である可能性がある。
+このコンテキスト情報の重要性は、プログラムからコンテキスト情報を提供することで、深層学習アプローチを改善する研究の可能性を提示している
+（たとえば、純粋なメソッドの void 戻り値の型は、引数を変更することを示唆している）。
 
 仕様における誤ったメソッド呼び出しの問題をさらに調査するために、要件番号 2 と 4 の ChatGPT のクエリを変更し、``without calling a separate function（別の関数を呼び出さずに）"というフレーズを追加した。
 表\ref{tab:result_2}に示す結果は、どちらの場合も生成された JML が`requires'を`ensures'に正しく置き換えていることを示している。
@@ -237,7 +231,7 @@ Java API のコーパスを具体的に使用してさらに学習すること�
 \section{関連研究}
 \label{sec:related_work}
 本論文では、自然言語の要件を自動的に形式化することに焦点を当てている。
-既存のいくつかの手法では、構造化モデル\cite{8},\cite{9}と内部の事前定義ルール\cite{10}、モデルとヒューリスティックに基づく手法\cite{11},\cite{12}、分析とヒューリスティックに基づく手法\cite{13},\cite{14}、ロジックとそのパーサーの再定義\cite{15}を使用し、
+既存のいくつかの手法では、構造化モデル\cite{8},\cite{9}、内部の事前定義ルール\cite{10}、モデルとヒューリスティックに基づく手法\cite{11},\cite{12}、分析とヒューリスティックに基づく手法\cite{13},\cite{14}、ロジックとそのパーサーの再定義\cite{15}のいずれかを使用し、
 制限された自然言語セットを用いることで要件の自動形式化を実現している。
 一方、本論文で使われている2つのアプローチは、自然言語入力に意図的な制限を課していない。
 
@@ -264,6 +258,22 @@ FRET\cite{17}は、構造化された自然言語要件を形式化するアプ�
 言語理解の点では、GPTは常にテキスト要件の意味を解釈するため、シンボリックアプローチよりも優れている。
 ただし、シンボリックアプローチは、テキスト入力を解釈して意味表現を構築できる場合、JML を生成する際により正確である。
 したがって、両方のアプローチは、自然言語要件の形式化を自動化し、形式手法を適用する労力を軽減する上で重要な貢献をすることができる。
+
+\section*{訳者の感想}
+自然言語からVDM仕様書を自動で生成するという研究に関連して、
+LLMを用いて自然言語から仕様を生成している研究を調べたくてこの論文を読んだ。
+LLMに関しての内容としては、「GPTを使ってJMLを生成してみた」といった程度だったが、従来のNLP手法との比較もあり参考になった。
+この論文ではGPTを用いた仕様の生成について、GPTの自然言語に対する理解力の高さが述べられていた。
+これより、自然言語からVDMを生成するにあたり、自然言語の分析部でGPTを活用できる可能性を考えた。
+また、GPTでの生成に関する問題点として、Java API や言語の特性を完全に理解できていないことが挙げられていた。
+実際に、Javaのメソッドを間違えて使っていたり、そもそもそのメソッドが使えるか分からない状態で呼び出していたりしていた。
+これは、Javaに依存している問題であり、VDMではこのような問題は発生しない可能性があると考えた。
+そのため、GPTはVDMであれば、高い精度で生成を行うことができる可能性があり、実際に試してみるべきであろうと考えた。
+加えて、プロンプトについての考察も必要だと考えた。
+この論文では、実際にプロンプトに一文追加しただけで、GPTの返答がかなり変わっていた。
+これより、プロンプトに関する調査を行うことでも、精度の向上が見込めるだろうと考えた。
+GPTで提供される結果の不安定性についても述べられていた。
+この特性は大きな問題になりうるため、GPTを使用するのであれば、この特性への対応を考える必要があるだろうと考えた。
 
 \begin{thebibliography}{99}
     \bibitem{1} G. T. Leavens, A. L. Baker, and C. Ruby, “Preliminary design of jml: A behavioral interface specification language for java,” SIGSOFT Softw. Eng. Notes, vol. 31, no. 3, p. 1-38, May 2006.
